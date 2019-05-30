@@ -37,9 +37,10 @@ typedef struct _applet
 
 static GtkStatusIcon *status_icon;
 
-static int elem_cb(snd_mixer_elem_t *elem,
-                   unsigned int mask __attribute__((unused)))
+static int elem_cb(snd_mixer_elem_t *elem, unsigned int mask)
 {
+    (void)mask;
+
     long min, max, value, range;
     int active, percentage;
     gchar tooltip_text[64];
@@ -71,18 +72,20 @@ static int elem_cb(snd_mixer_elem_t *elem,
     return 0;
 }
 
-static void child_watch_cb(GPid pid,
-                           gint status __attribute__((unused)),
-                           GPid *ppid)
+static void child_watch_cb(GPid pid, gint status, GPid *ppid)
 {
+    (void)status;
+
     g_spawn_close_pid(pid);
     *ppid = 0;
 }
 
-static gboolean button_press_event_cb(GtkWidget *widget __attribute__((unused)),
+static gboolean button_press_event_cb(GtkWidget *widget,
                                       GdkEventButton *event,
                                       applet *data)
 {
+    (void)widget;
+
     gchar *argv_1[] = {"/usr/bin/x-terminal-emulator",
                        "-title",
                        "alsamixer",
@@ -127,17 +130,20 @@ static gboolean button_press_event_cb(GtkWidget *widget __attribute__((unused)),
     return TRUE;
 }
 
-static gboolean poll_cb(GIOChannel *source __attribute__((unused)),
-                        GIOCondition condition __attribute__((unused)),
+static gboolean poll_cb(GIOChannel *source,
+                        GIOCondition condition,
                         gpointer mixer)
 {
+    (void)source;
+    (void)condition;
+
     if (snd_mixer_handle_events(mixer) < 0)
         gtk_main_quit();
 
     return TRUE;
 }
 
-int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
+int main(void)
 {
     applet data;
     snd_mixer_t *mixer;
